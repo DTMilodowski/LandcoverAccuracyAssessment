@@ -1,3 +1,7 @@
+@author David T. Milodowski
+@email d.t.milodowski@ed.ac.uk
+@date 28/04/2016
+
 import numpy as np
 
 """
