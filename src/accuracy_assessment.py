@@ -104,7 +104,7 @@ def calculate_accuracy_stats_from_sample(CM, MappedClassAreas):
 
     q,temp = CM.shape
     n=np.sum(CM,axis=1)
-    print n
+ 
     # First convert confusion matrix from representing pixels to representing proportional area
     CM_Estimator = CM.copy()
     W=MappedClassAreas/np.sum(MappedClassAreas)
@@ -125,8 +125,6 @@ def calculate_accuracy_stats_from_sample(CM, MappedClassAreas):
     for j in range(0,q):
         for i in range(0,q):
             N_j[j]+=(N_i[i]/n[i])*CM[i,j]
-    print "N_j"
-    print N_j
     Term2 = np.zeros(q)
     for j in range(0,q):
         for i in range(0,q):
@@ -135,6 +133,24 @@ def calculate_accuracy_stats_from_sample(CM, MappedClassAreas):
 
     Var_PA =(1/N_j**2) * ( (N_i**2) * ((1-PA)**2) * UA * (1-UA) / (n-1) + (PA**2) * (Term2) )
     
+    # Now get Area estimate for stratified estimator (as proportion of whole area)
+    p_area=np.zeros(q)
+    for k in range(0,q):
+        for i in range(0,q):
+            p_area[k]+=W[i]*CM[i,k]/n[i]
+
+    # Now get standard error for this estimate (as proportion)
+    Serr = np.zeros(q)
+    for k in range(0,q):
+        for i in range(0,q):
+            Serr[k]+=(W[i]*CM_Estimator[i,k]-CM_Estimator[i,k]**2) / (n[i]-1)
+    Serr_area=np.sqrt(Serr)
+ 
+    """
+    print n
+    print "N_j"
+    print N_j
+
     print "term 1"
     print  (N_i**2) * ((1-PA)**2) * UA * (1-UA) / (n-1)
 
@@ -152,20 +168,10 @@ def calculate_accuracy_stats_from_sample(CM, MappedClassAreas):
     print "PA"
     print 1.96*np.sqrt(Var_PA)
     print " "
-    # Now get Area estimate for stratified estimator (as proportion of whole area)
-    p_area=np.zeros(q)
-    for k in range(0,q):
-        for i in range(0,q):
-            p_area[k]+=W[i]*CM[i,k]/n[i]
-    print p_area
 
-    # Now get standard error for this estimate (as proportion)
-    Serr = np.zeros(q)
-    for k in range(0,q):
-        for i in range(0,q):
-            Serr[k]+=(W[i]*CM_Estimator[i,k]-CM_Estimator[i,k]**2) / (n[i]-1)
-    Serr_area=np.sqrt(Serr)
+    print p_area
     print Serr_area
+    """
     return OA, UA, PA, Var_OA, Var_UA, Var_PA, p_area, Serr_area
 
 #MappedClassAreas = np.array([200000., 150000., 3200000., 6450000.])
