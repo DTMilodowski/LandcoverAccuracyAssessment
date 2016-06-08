@@ -46,8 +46,9 @@ def get_sample_sizes(MappedClassAreas,PredictedClassUA,TargetSErr=0.01, n_min=75
 def retrieve_stratified_random_sample(ClassMap,ClassKeys,PredictedClassUA,XMin,YMax,XResolution,YResolution,TargetSErr=0.01, n_min=75.):
     
     N_classes = ClassKeys.size
+    print "N_classes = ", N_classes
     # create row and column id's
-    nrows,ncols = ClassMap.shape
+    (nrows,ncols) = ClassMap.shape
     rows_matrix = np.zeros((nrows,ncols))
     cols_matrix = np.zeros((nrows,ncols))
     for i in range(0,nrows):
@@ -57,36 +58,36 @@ def retrieve_stratified_random_sample(ClassMap,ClassKeys,PredictedClassUA,XMin,Y
 
     MappedClassSizes = np.zeros(N_classes)
     for kk in range(0,N_classes):
-        MappedClassSizes = np.sum(ClassMap==ClassKeys[kk])
-
+        MappedClassSizes[kk] = np.sum(ClassMap==ClassKeys[kk])
     temp, ClassSampleSizes = get_sample_sizes(MappedClassSizes,PredictedClassUA,TargetSErr,n_min)
-
     N_samples = np.sum(ClassSampleSizes)
-    sample_points = np.zeros((N_samples,5)) # this will be an array of points with values x,y,row,col,class
+    sample_points = np.zeros((N_samples,6)) # this will be an array of points with values x,y,row,col,mapped_class,actual_class(nodata)
 
     count = 0
-    
+    index = 0
     for kk in range(0,N_classes):
         class_rows = rows_matrix[ClassMap==ClassKeys[kk]]
         class_cols = cols_matrix[ClassMap==ClassKeys[kk]]
-        indices = np.arange(0,MappedClassAreas[kk])
+        indices = np.arange(0,MappedClassSizes[kk],dtype=int)
         
         #randomly sample indices without replacement
-        sample_indices = np.random.choice(indices, ClassSampleSizes[kk], replace=False)
+        sample_indices = np.random.choice(indices, int(ClassSampleSizes[kk]), replace=False)
         
-        for ii in range(0,ClassSampleSizes[kk]):
-            sample_points[ii,0] = class_cols[sample_indices[ii]]*XResolution + Xmin + XResolution/2 #x
-            sample_points[ii,1] = Ymax - YResolution/2 - class_rows[sample_indices[ii]]*Y_Resolution #y
-            sample_points[ii,2] = class_rows[sample_indices[ii]]#row
-            sample_points[ii,3] = class_cols[sample_indices[ii]]#col
-            sample_points[ii,4] = ClassKeys[kk]#class
+        for ii in range(0,int(ClassSampleSizes[kk])):
+            sample_points[index,0] = class_cols[sample_indices[ii]]*XResolution + XMin + XResolution/2. #x
+            sample_points[index,1] = YMax - YResolution/2. - class_rows[sample_indices[ii]]*YResolution #y
+            sample_points[index,2] = class_rows[sample_indices[ii]]#row
+            sample_points[index,3] = class_cols[sample_indices[ii]]#col
+            sample_points[index,4] = ClassKeys[kk]#class
+            sample_points[index,5] = -9999
+            index+=1
 
     return sample_points
 
 def write_sample_points_to_csv(sample_points,FILENAME,SAVEDIR='./'):
-    hdr = "x,y,row,col,class"
-    np.savetxt(SAVEDIR+FILENAME+'.csv',sample_points,",",header=hdr)
-
+    hdr = "x,y,row,col,mapped_class,actual_class"
+    np.savetxt(SAVEDIR+FILENAME+".csv",sample_points,fmt=["%.3f","%.3f","%.0f","%.0f","%.0f","%.0f"],delimiter=",",header=hdr)
+    return 0
 
 """
 The following functions calculate the accuracy statistics and area changes, including confidence intervals as outlined by Olofsson et al., 2014.
