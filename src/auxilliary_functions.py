@@ -102,10 +102,23 @@ def load_RapidEye_forest_loss(ForestLossEarly_file,ForestLossLate_file):
     return YEAR_array_Early, MONTH_array_Early, DAY_array_Early, YEAR_array_Late, MONTH_array_Late, DAY_array_Late
 
 
-def convert_RapidEte_forest_loss_to_thematic_map(ForestLossEarly,ForestLossLate,Mask):
+def convert_RapidEye_forest_loss_to_thematic_map(ForestLossEarly,ForestLossLate,Mask,StartYear=2010,EndYear=2015):
     (NRows,NCols) = ForestLossEarly.shape
     ChangeMap=np.zeros((NRows,NCols))
     ChangeMap[Mask==0]=np.nan
+
+    temp = ForestLossEarly.copy()
+    temp[ForestLossEarly<StartYear]=0
+    temp[ForestLossEarly==1]=1
+    ForestLossEarly=temp.copy()
+
+    temp = ForestLossLate.copy()
+    temp[ForestLossLate<StartYear]=0
+    temp[ForestLossLate==1]=1
+    ForestLossLate=temp.copy()
+    
+    ForestLossEarly[ForestLossEarly>EndYear]=1
+    ForestLossLate[ForestLossLate>EndYear]=1
 
     # Now create "Date" array from Hansen array
     for i in range(0,NRows):
@@ -128,3 +141,36 @@ def convert_RapidEte_forest_loss_to_thematic_map(ForestLossEarly,ForestLossLate,
                 else:
                     ChangeMap[i,j]=np.nan
     return ChangeMap
+
+def get_class_areas_from_RapidEye_pair(ForestLossEarly,ForestLossLate,Mask,StartYear=2010,EndYear=2015):
+    class_count = np.zeros(3)
+    temp = ForestLossEarly.copy()
+    temp[ForestLossEarly<StartYear]=0
+    temp[ForestLossEarly==1]=1
+    temp[Mask==0]=np.nan
+    ForestLossEarly=temp.copy()
+
+    temp = ForestLossLate.copy()
+    temp[ForestLossLate<=StartYear]=0
+    temp[ForestLossLate==1]=1
+    temp[Mask==0]=np.nan
+    ForestLossLate=temp.copy()
+
+    class_count[0]=float(np.sum(ForestLossEarly==0) + np.sum(ForestLossLate==0))/2
+    class_count[1]=float(np.sum(ForestLossEarly==1) + np.sum(ForestLossLate==1))/2
+    class_count[2]=float(np.sum(ForestLossEarly>1) + np.sum(ForestLossLate>1))/2
+
+    return class_count
+
+def get_class_areas_from_changemap(changemap,mask):
+    class_count = np.zeros(3)
+    temp = changemap.copy()
+    temp[mask==0]=np.nan
+    ForestLossEarly=temp.copy()
+
+
+    class_count[0]=float(np.sum(ForestLossEarly==0) + np.sum(ForestLossLate==0))/2
+    class_count[1]=float(np.sum(ForestLossEarly==1) + np.sum(ForestLossLate==1))/2
+    class_count[2]=float(np.sum(ForestLossEarly==2) + np.sum(ForestLossLate==2))/2
+
+    return class_count
