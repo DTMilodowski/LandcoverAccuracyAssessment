@@ -166,11 +166,11 @@ def get_class_areas_from_changemap(changemap,mask):
     class_count = np.zeros(3)
     temp = changemap.copy()
     temp[mask==0]=np.nan
-    ForestLossEarly=temp.copy()
+    ForestLoss=temp.copy()
 
 
-    class_count[0]=float(np.sum(ForestLossEarly==0) + np.sum(ForestLossLate==0))/2
-    class_count[1]=float(np.sum(ForestLossEarly==1) + np.sum(ForestLossLate==1))/2
-    class_count[2]=float(np.sum(ForestLossEarly==2) + np.sum(ForestLossLate==2))/2
+    class_count[0]=float(np.sum(ForestLoss==0))
+    class_count[1]=float(np.sum(ForestLoss==1))
+    class_count[2]=float(np.sum(ForestLoss==2))
 
     return class_count
