@@ -156,6 +156,9 @@ def get_class_areas_from_RapidEye_pair(ForestLossEarly,ForestLossLate,Mask,Start
     temp[Mask==0]=np.nan
     ForestLossLate=temp.copy()
 
+    ForestLossEarly[ForestLossEarly>EndYear]=1
+    ForestLossLate[ForestLossLate>EndYear]=1
+
     class_count[0]=float(np.sum(ForestLossEarly==0) + np.sum(ForestLossLate==0))/2
     class_count[1]=float(np.sum(ForestLossEarly==1) + np.sum(ForestLossLate==1))/2
     class_count[2]=float(np.sum(ForestLossEarly>1) + np.sum(ForestLossLate>1))/2
@@ -171,6 +174,6 @@ def get_class_areas_from_changemap(changemap,mask):
 
     class_count[0]=float(np.sum(ForestLoss==0))
     class_count[1]=float(np.sum(ForestLoss==1))
-    class_count[2]=float(np.sum(ForestLoss==2))
+    class_count[2]=float(np.sum(ForestLoss>1))
 
     return class_count
