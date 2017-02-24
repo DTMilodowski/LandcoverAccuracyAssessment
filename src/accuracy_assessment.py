@@ -59,6 +59,7 @@ def retrieve_stratified_random_sample(ClassMap,ClassKeys,PredictedClassUA,XMin,Y
     MappedClassSizes = np.zeros(N_classes)
     for kk in range(0,N_classes):
         MappedClassSizes[kk] = np.sum(ClassMap==ClassKeys[kk])
+
     temp, ClassSampleSizes = get_sample_sizes(MappedClassSizes,PredictedClassUA,TargetSErr,n_min)
     N_samples = np.sum(ClassSampleSizes)
     sample_points = np.zeros((N_samples,6)) # this will be an array of points with values x,y,row,col,mapped_class,actual_class(nodata)
@@ -179,6 +180,6 @@ def calculate_accuracy_stats_from_sample(CM, MappedClassAreas):
     print p_area
     print Serr_area
     """
-    return OA, UA, PA, Var_OA, Var_UA, Var_PA, p_area, Serr_area
+    return OA, UA, PA, Var_OA, Var_UA, Var_PA, p_area, Serr_area, CM_Estimator
 
 #MappedClassAreas = np.array([200000., 150000., 3200000., 6450000.])
